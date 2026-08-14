@@ -102,6 +102,7 @@ def post_to_instagram(image_url: str, caption: str) -> None:
         data={"image_url": image_url, "caption": caption, "access_token": access_token},
         timeout=60,
     )
+  print("Instagram応答:", create_resp.status_code, create_resp.text)
     create_resp.raise_for_status()
     creation_id = create_resp.json()["id"]
 

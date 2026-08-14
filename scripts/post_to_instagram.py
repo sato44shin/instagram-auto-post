@@ -24,7 +24,6 @@ QUEUE_DIR = Path("queue")
 POSTED_DIR = Path("posted")
 GRAPH_API_VERSION = "v21.0"
 
-# ここをあなたの投稿スタイルに合わせて自由に調整してください。
 CAPTION_SYSTEM_PROMPT = """あなたは風景・建築・自然・祭りを撮る写真家 さとしん(@sato44shin) の
 Instagram投稿文を書くアシスタントです。
 
@@ -87,7 +86,7 @@ def generate_caption(photo_path: Path) -> str:
 
 
 def public_image_url(photo_path: Path) -> str:
-    repo = os.environ["GITHUB_REPOSITORY"]  # "owner/repo"
+    repo = os.environ["GITHUB_REPOSITORY"]
     return f"https://raw.githubusercontent.com/{repo}/main/{photo_path.as_posix()}"
 
 
@@ -96,20 +95,17 @@ def post_to_instagram(image_url: str, caption: str) -> None:
     access_token = os.environ["IG_ACCESS_TOKEN"]
     base = f"https://graph.facebook.com/{GRAPH_API_VERSION}/{ig_user_id}"
 
-    # 1. メディアコンテナ作成
     create_resp = requests.post(
         f"{base}/media",
         data={"image_url": image_url, "caption": caption, "access_token": access_token},
         timeout=60,
     )
-  print("Instagram応答:", create_resp.status_code, create_resp.text)
+    print("Instagram応答:", create_resp.status_code, create_resp.text)
     create_resp.raise_for_status()
     creation_id = create_resp.json()["id"]
 
-    # 2. 画像取り込み完了を軽く待つ（通常は即time.sleep不要だが念のため）
     time.sleep(5)
 
-    # 3. 公開
     publish_resp = requests.post(
         f"{base}/media_publish",
         data={"creation_id": creation_id, "access_token": access_token},
